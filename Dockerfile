@@ -1,7 +1,7 @@
 # File: Dockerfile
 
 # 1. Base Image
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # 2. Dependencies
 FROM base AS deps
