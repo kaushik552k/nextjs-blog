@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
-// import { useSoundEffect } from '../hooks/useSoundEffect'; // Use dummy for now if needed
+import useSoundEffect from "@/app/hooks/useSoundEffect"; // ✅ Hook is back!
 
 const LikeButton = ({
   initialLikes = 0,
@@ -15,28 +15,57 @@ const LikeButton = ({
   const [likes, setLikes] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(false);
   const [showParticles, setShowParticles] = useState(false);
+  const [clickCount, setClickCount] = useState(0); // Track clicks for local storage
+
+  // ✅ Destructure sound functions
+  const { playCelebration } = useSoundEffect();
 
   // Safe local storage check
   useEffect(() => {
     if (!postSlug) return;
-    const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}");
-    if (likedPosts[postSlug]) {
-      setIsLiked(true);
+    try {
+      const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}");
+      if (likedPosts[postSlug]) {
+        setIsLiked(true);
+        setClickCount(likedPosts[postSlug].clicks || 0);
+      }
+    } catch (e) {
+      // Ignore errors parsing local storage
     }
   }, [postSlug]);
 
   const handleLike = () => {
-    // playCelebration(); // Add sound back if you have the hook
+    // ✅ 1. Play Sound
+    playCelebration();
+
+    // 2. Show Particles
     setShowParticles(true);
     setTimeout(() => setShowParticles(false), 600);
-    setLikes((prev) => prev + 1);
-    setIsLiked(true);
 
+    // 3. Update State
+    setLikes((prev) => prev + 1);
+    setClickCount((prev) => prev + 1);
+
+    if (!isLiked) {
+      setIsLiked(true);
+    }
+
+    // 4. Save to Local Storage
     if (postSlug) {
       const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}");
-      likedPosts[postSlug] = { liked: true };
+      likedPosts[postSlug] = {
+        liked: true,
+        clicks: clickCount + 1,
+      };
       localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
     }
+  };
+
+  const formatLikes = (num: number) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(num >= 10000 ? 0 : 1) + "k";
+    }
+    return num.toLocaleString();
   };
 
   const particles = Array.from({ length: 12 }, (_, i) => ({
@@ -61,6 +90,7 @@ const LikeButton = ({
               : "bg-card border-2 border-border hover:border-pink-400"
           }`}
         >
+          {/* Background Pulse */}
           <motion.div
             className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 opacity-0 group-hover:opacity-20"
             animate={
@@ -69,9 +99,10 @@ const LikeButton = ({
             transition={{ duration: 1.5, repeat: Infinity }}
           />
 
+          {/* Heart Icon - Fixed Animation */}
           <motion.div
             animate={isLiked ? { scale: [1, 1.2, 1] } : {}}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
           >
             <Heart
               className={`w-7 h-7 transition-all duration-300 ${
@@ -82,6 +113,7 @@ const LikeButton = ({
             />
           </motion.div>
 
+          {/* Particles */}
           <AnimatePresence>
             {showParticles &&
               particles.map((particle) => (
@@ -103,9 +135,30 @@ const LikeButton = ({
                 />
               ))}
           </AnimatePresence>
+
+          {/* +1 Floating Text */}
+          <AnimatePresence>
+            {showParticles && (
+              <motion.span
+                className="absolute -top-8 text-pink-500 font-bold text-lg pointer-events-none"
+                initial={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 0, y: -20 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                +1
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Tooltip */}
+        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-3 py-1 rounded-lg bg-card border border-border text-sm text-muted-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+          {isLiked ? "Thanks! Click again!" : "Like this post"}
         </div>
       </motion.button>
 
+      {/* Like Count */}
       <div className="text-center">
         <motion.div
           key={likes}
@@ -113,9 +166,11 @@ const LikeButton = ({
           animate={{ scale: 1, color: "var(--foreground)" }}
           className="text-2xl font-bold text-foreground"
         >
-          {likes >= 1000 ? (likes / 1000).toFixed(1) + "k" : likes}
+          {formatLikes(likes)}
         </motion.div>
-        <span className="text-sm text-muted-foreground">likes</span>
+        <span className="text-sm text-muted-foreground">
+          {likes === 1 ? "like" : "likes"}
+        </span>
       </div>
     </div>
   );

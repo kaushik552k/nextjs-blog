@@ -6,11 +6,12 @@ import BlogPostClient from "@/app/components/BlogPostClient";
 export default async function BlogPostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params; // Await params in Next.js 15+
   const post = getPostBySlug(slug);
-  const content = blogContent[slug];
+
+  const content = (blogContent as any)[slug];
 
   if (!post) {
     notFound();
