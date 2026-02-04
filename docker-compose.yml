@@ -17,7 +17,16 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/conf:/etc/letsencrypt # Where certs will live
+      - ./certbot/www:/var/www/certbot # Where the challenge files live
     depends_on:
       - web
+certbot:
+  image: certbot/certbot
+  container_name: kaushik-certbot
+  volumes:
+    - ./certbot/conf:/etc/letsencrypt
+    - ./certbot/www:/var/www/certbot
