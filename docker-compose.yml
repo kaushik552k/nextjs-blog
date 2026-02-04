@@ -1,0 +1,23 @@
+# File: docker-compose.yml
+version: "3.8"
+
+services:
+  web:
+    container_name: kaushik-blog
+    build: .
+    restart: always
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+
+  nginx:
+    container_name: kaushik-gateway
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
