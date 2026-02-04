@@ -24,9 +24,10 @@ services:
       - ./certbot/www:/var/www/certbot # Where the challenge files live
     depends_on:
       - web
-certbot:
-  image: certbot/certbot
-  container_name: kaushik-certbot
-  volumes:
-    - ./certbot/conf:/etc/letsencrypt
-    - ./certbot/www:/var/www/certbot
+
+  certbot:
+    image: certbot/certbot
+    container_name: kaushik-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
