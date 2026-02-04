@@ -1,44 +1,26 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Clock, ChevronRight, Database, Code2, Brain, Sparkles } from 'lucide-react';
-import { getCategoryBySlug, getPostsByCategory, getPostsBySubcategory } from '../data/mock';
+'use client';
 
-// Icon mapping
-const iconMap = {
+import React from 'react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { ArrowRight, ChevronRight, Database, Code2, Brain, Sparkles, Clock } from 'lucide-react';
+
+// Map icon strings to actual components
+const iconMap: any = {
   Database: Database,
   Code2: Code2,
   Brain: Brain
 };
 
-const CategoryPage = () => {
-  const { categorySlug, subcategorySlug } = useParams();
-  const category = getCategoryBySlug(categorySlug);
-  
-  if (!category) {
-    return (
-      <div className="min-h-screen flex items-center justify-center pt-20">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-[rgb(var(--color-text-primary))] mb-4">Category Not Found</h1>
-          <Link 
-            to="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
+type Props = {
+  category: any;
+  currentSubcategory?: any;
+  posts: any[];
+  params: { categorySlug: string; subcategorySlug?: string };
+};
 
-  const posts = subcategorySlug 
-    ? getPostsBySubcategory(categorySlug, subcategorySlug)
-    : getPostsByCategory(categorySlug);
-
-  const currentSubcategory = subcategorySlug 
-    ? category.subcategories.find(s => s.slug === subcategorySlug)
-    : null;
-
+const CategoryView = ({ category, currentSubcategory, posts, params }: Props) => {
+  const { categorySlug, subcategorySlug } = params;
   const IconComponent = iconMap[category.icon] || Sparkles;
 
   return (
@@ -48,20 +30,20 @@ const CategoryPage = () => {
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 text-sm text-[rgb(var(--color-text-muted))] mb-8"
+          className="flex items-center gap-2 text-sm text-muted-foreground mb-8"
         >
-          <Link to="/" className="hover:text-pink-500 transition-colors">Home</Link>
+          <Link href="/" className="hover:text-pink-500 transition-colors">Home</Link>
           <ChevronRight className="w-4 h-4" />
-          <Link 
-            to={`/category/${categorySlug}`} 
-            className={`hover:text-pink-500 transition-colors ${!subcategorySlug ? 'text-[rgb(var(--color-text-primary))]' : ''}`}
+          <Link
+            href={`/category/${categorySlug}`}
+            className={`hover:text-pink-500 transition-colors ${!subcategorySlug ? 'text-foreground font-medium' : ''}`}
           >
             {category.name}
           </Link>
           {currentSubcategory && (
             <>
               <ChevronRight className="w-4 h-4" />
-              <span className="text-[rgb(var(--color-text-primary))]">{currentSubcategory.name}</span>
+              <span className="text-foreground font-medium">{currentSubcategory.name}</span>
             </>
           )}
         </motion.nav>
@@ -77,11 +59,11 @@ const CategoryPage = () => {
               <IconComponent className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-[rgb(var(--color-text-primary))]">
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
                 {currentSubcategory ? currentSubcategory.name : category.name}
               </h1>
               {!currentSubcategory && (
-                <p className="text-[rgb(var(--color-text-secondary))] mt-1">
+                <p className="text-muted-foreground mt-1 text-lg">
                   {category.description}
                 </p>
               )}
@@ -89,7 +71,7 @@ const CategoryPage = () => {
           </div>
         </motion.header>
 
-        {/* Subcategories (only show on main category page) */}
+        {/* Subcategories (Only show on main category page) */}
         {!subcategorySlug && category.subcategories && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -97,11 +79,11 @@ const CategoryPage = () => {
             transition={{ delay: 0.1 }}
             className="mb-12"
           >
-            <h2 className="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Browse by Topic
             </h2>
             <div className="flex flex-wrap gap-3">
-              {category.subcategories.map((sub, index) => (
+              {category.subcategories.map((sub: any, index: number) => (
                 <motion.div
                   key={sub.slug}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -109,8 +91,8 @@ const CategoryPage = () => {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link
-                    to={`/category/${categorySlug}/${sub.slug}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[rgb(var(--color-card))] border border-[rgb(var(--color-border))] hover:border-pink-500/50 text-[rgb(var(--color-text-secondary))] hover:text-pink-500 transition-all"
+                    href={`/category/${categorySlug}/${sub.slug}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border hover:border-pink-500/50 text-muted-foreground hover:text-pink-500 transition-all"
                   >
                     {sub.name}
                     <ArrowRight className="w-4 h-4" />
@@ -121,7 +103,7 @@ const CategoryPage = () => {
           </motion.div>
         )}
 
-        {/* Posts List - Josh Comeau Style */}
+        {/* Posts List */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -129,11 +111,11 @@ const CategoryPage = () => {
           className="space-y-6"
         >
           {posts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-[rgb(var(--color-text-muted))]">No posts in this category yet.</p>
+            <div className="text-center py-12 bg-card rounded-2xl border border-border border-dashed">
+              <p className="text-muted-foreground">No posts in this category yet.</p>
             </div>
           ) : (
-            posts.map((post, index) => (
+            posts.map((post: any, index: number) => (
               <motion.article
                 key={post.slug}
                 initial={{ opacity: 0, y: 30 }}
@@ -142,39 +124,34 @@ const CategoryPage = () => {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link
-                  to={`/blog/${post.slug}`}
+                  href={`/blog/${post.slug}`}
                   className="group block"
                 >
-                  <div className="relative p-6 sm:p-8 rounded-2xl bg-[rgb(var(--color-card))] border border-[rgb(var(--color-border))] hover:border-pink-500/30 transition-all overflow-hidden">
+                  <div className="relative p-6 sm:p-8 rounded-2xl bg-card border border-border hover:border-pink-500/30 transition-all overflow-hidden">
                     {/* Gradient accent */}
                     <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${post.gradient} opacity-0 group-hover:opacity-100 transition-opacity`} />
-                    
-                    {/* Content */}
+
                     <div className="relative">
-                      {/* Title */}
-                      <h2 className="text-xl sm:text-2xl font-bold text-[rgb(var(--color-text-primary))] group-hover:text-pink-500 transition-colors mb-2">
+                      <h2 className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-pink-500 transition-colors mb-2">
                         {post.title}
                       </h2>
-                      
-                      {/* Subtitle */}
+
                       {post.subtitle && (
-                        <p className="text-[rgb(var(--color-accent-secondary))] font-medium mb-3">
+                        <p className="text-pink-500 font-medium mb-3">
                           {post.subtitle}
                         </p>
                       )}
-                      
-                      {/* Excerpt */}
-                      <p className="text-[rgb(var(--color-text-secondary))] leading-relaxed mb-4 line-clamp-3">
+
+                      <p className="text-muted-foreground leading-relaxed mb-4 line-clamp-3">
                         {post.excerpt}
                       </p>
-                      
-                      {/* Footer */}
+
                       <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-1.5 text-sm text-[rgb(var(--color-text-muted))]">
+                        <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
                           <Clock className="w-4 h-4" />
                           {post.readingTime}
                         </span>
-                        
+
                         <motion.span
                           className="flex items-center gap-2 text-pink-500 font-semibold"
                           whileHover={{ x: 4 }}
@@ -195,4 +172,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default CategoryView;

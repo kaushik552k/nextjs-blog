@@ -34,7 +34,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="min-h-screen bg-[rgb(var(--color-background))] flex flex-col">
             <Header />
-            <main className="flex-grow container mx-auto max-w-6xl px-4 py-8">
+            <main className="grow container mx-auto max-w-6xl px-4 py-8">
               {children}
             </main>
             <Footer />

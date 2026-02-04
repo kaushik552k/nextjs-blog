@@ -147,7 +147,7 @@ const HeroSection = () => {
           <span className="text-[rgb(var(--color-text-primary))]">
             Hey! I'm{" "}
           </span>
-          <span className="gradient-text">Kaushik</span>
+          <span className="gradient-text">{siteConfig.name}</span>
           <motion.span
             className="inline-block ml-2"
             animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
@@ -162,15 +162,12 @@ const HeroSection = () => {
           variants={itemVariants}
           className="text-xl sm:text-2xl text-[rgb(var(--color-text-secondary))] mb-8 max-w-2xl mx-auto leading-relaxed"
         >
-          I create{" "}
-          <span className="text-pink-500 font-semibold">
-            friendly tutorials
-          </span>{" "}
-          for developers. Focus on{" "}
-          <span className="text-cyan-500 font-semibold">React</span>,{" "}
-          <span className="text-purple-500 font-semibold">CSS</span>,{" "}
-          <span className="text-yellow-500 font-semibold">Animation</span>, and
-          more!
+          Cultivating a{" "}
+          <span className="text-pink-500 font-semibold">digital garden</span>{" "}
+          for developers. Architecting the future with{" "}
+          <span className="text-cyan-500 font-semibold">System Design</span>,{" "}
+          <span className="text-purple-500 font-semibold">Web Dev</span>,{" "}
+          <span className="text-yellow-500 font-semibold">AI</span>, and more!
         </motion.p>
 
         {/* Tags */}

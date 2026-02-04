@@ -5,13 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Menu, X, Sparkles } from "lucide-react";
 import Link from "next/link"; // <--- Use Next.js Link, not <a> tags
 import { useTheme } from "next-themes"; // <--- Import the hook
-
-// Define links here or import them
-const navLinks = [
-  { name: "Blog", href: "/blog" },
-  { name: "Snippets", href: "/snippets" },
-  { name: "Projects", href: "/projects" },
-];
+import { navLinks } from "@/app/data/mock";
 
 const Header = () => {
   const { theme, setTheme } = useTheme(); // <--- This manages the theme for you
