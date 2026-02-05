@@ -1,7 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 // ⚠️ Update these paths to match where you saved your mock files!
-import { blogPosts, mainCategories, siteConfig } from "../app/data/mock";
-import { blogContent } from "../app/data/blogContent";
+import {
+  BACKUP_blogPosts,
+  BACKUP_mainCategories,
+  siteConfig,
+} from "../app/data/mock";
+import { BACKUP_blogContent } from "../app/data/blogContent";
 
 const prisma = new PrismaClient();
 
@@ -46,7 +50,7 @@ async function main() {
   // ==========================================
   // 2. Create Categories & Subcategories
   // ==========================================
-  for (const cat of mainCategories) {
+  for (const cat of BACKUP_mainCategories) {
     const category = await prisma.category.upsert({
       where: { slug: cat.slug },
       update: {
@@ -82,7 +86,7 @@ async function main() {
   // ==========================================
   // 3. Create Tags & Posts
   // ==========================================
-  for (const post of blogPosts) {
+  for (const post of BACKUP_blogPosts) {
     // A. Find the Database IDs for Category/Subcategory
     const category = await prisma.category.findUnique({
       where: { slug: post.category },
@@ -107,7 +111,7 @@ async function main() {
     // B. Get Rich Content
     // We access blogContent using the slug as the key
     // We cast to 'any' because the import structure might be inferred loosely
-    const detailedData = (blogContent as any)[post.slug];
+    const detailedData = (BACKUP_blogContent as any)[post.slug];
     const richContent = detailedData?.content || [];
 
     // C. Parse Metadata
