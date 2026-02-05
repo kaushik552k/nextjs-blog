@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Calendar, Clock, Tag, ArrowRight } from "lucide-react";
 import LikeButton from "@/app/components/LikeButton";
-import MDXRenderer from "@/app/components/MDXRenderer"; // ✅ Import the renderer
+import MDXRenderer from "@/app/components/MDXRenderer";
 
 export default function BlogPostClient({
   post,
@@ -13,6 +13,15 @@ export default function BlogPostClient({
   subcategoryName,
   relatedPosts,
 }: any) {
+  // Helper to format the database date
+  const formatDate = (date: any) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
     <article className="max-w-3xl mx-auto px-6 py-24">
       {/* Breadcrumb */}
@@ -26,7 +35,8 @@ export default function BlogPostClient({
         </Link>
         <span>/</span>
         <Link
-          href={`/category/${post.category}`}
+          // FIX 1: Use .slug property
+          href={`/category/${post.category.slug}`}
           className="hover:text-primary transition-colors"
         >
           {categoryName}
@@ -57,37 +67,38 @@ export default function BlogPostClient({
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4" />
-            {post.publishedAt}
+            {/* FIX 2: Format the Date object */}
+            {formatDate(post.publishedAt)}
           </span>
           <span className="flex items-center gap-1.5">
             <Clock className="w-4 h-4" />
-            {post.readingTime}
+            {post.readingTime} min read
           </span>
         </div>
       </motion.header>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-8">
-        {post.tags?.map((tag: string) => (
+        {/* FIX 3: Iterate over tag objects, using .id and .name */}
+        {post.tags?.map((tag: any) => (
           <span
-            key={tag}
+            key={tag.id}
             className="flex items-center gap-1 px-3 py-1 rounded-full bg-card border border-border text-sm text-muted-foreground"
           >
             <Tag className="w-3 h-3" />
-            {tag}
+            {tag.name}
           </span>
         ))}
       </div>
 
-      {/* ✅ FIXED: Content Renderer */}
+      {/* Content Renderer */}
       <div className="prose prose-invert max-w-none">
-        {/* We pass content.content because your mock data structure has the array inside a 'content' key */}
-        <MDXRenderer content={content?.content || []} />
+        {/* FIX 4: Pass the content array directly (DB stores it as the array) */}
+        <MDXRenderer content={content || []} />
       </div>
 
       {/* Like Section */}
       <div className="mt-16 py-12 border-t border-b border-border flex flex-col items-center">
-        {/* ✅ FIXED: Changed 'slug' to 'postSlug' */}
         <LikeButton postSlug={post.slug} />
       </div>
 

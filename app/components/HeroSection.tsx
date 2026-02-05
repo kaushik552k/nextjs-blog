@@ -2,8 +2,17 @@
 
 import React from "react";
 import { motion, Variants } from "framer-motion";
-import { siteConfig } from "@/app/data/mock";
 import { ArrowDown, Code2, Palette, Sparkles, Zap } from "lucide-react";
+
+const siteConfig = {
+  name: "Kaushik",
+  tagline:
+    "Cultivating a digital garden at the intersection of System Design, Web Development, AI and more!",
+  avatar: {
+    light: "https://www.joshwcomeau.com/images/josh/josh-happy-light.png",
+    dark: "https://www.joshwcomeau.com/images/josh/josh-happy-dark.png",
+  },
+};
 
 const HeroSection = () => {
   const containerVariants: Variants = {

@@ -1,17 +1,17 @@
 import { notFound } from "next/navigation";
-import { getCategoryBySlug, getPostsBySubcategory } from "@/app/data/mock";
 import CategoryView from "@/app/components/CategoryView";
+import { getCategoryBySlug, getPostsBySubcategory } from "@/app/lib/data"; // New Import
 
 type Props = {
-  params: {
+  params: Promise<{
     categorySlug: string;
     subcategorySlug: string;
-  };
+  }>;
 };
 
 export default async function SubCategoryPage({ params }: Props) {
   const { categorySlug, subcategorySlug } = await params;
-  const category = getCategoryBySlug(categorySlug);
+  const category = await getCategoryBySlug(categorySlug);
 
   if (!category) {
     notFound();
@@ -25,7 +25,7 @@ export default async function SubCategoryPage({ params }: Props) {
     notFound();
   }
 
-  const posts = getPostsBySubcategory(categorySlug, subcategorySlug);
+  const posts = await getPostsBySubcategory(categorySlug, subcategorySlug);
 
   return (
     <CategoryView

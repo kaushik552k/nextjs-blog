@@ -1,38 +1,31 @@
 import { notFound } from "next/navigation";
-import { getPostBySlug, getCategoryBySlug, blogPosts } from "@/app/data/mock";
-import blogContent from "@/app/data/blogContent"; // Ensure this path is correct
 import BlogPostClient from "@/app/components/BlogPostClient";
+import { getPostBySlug, getRelatedPosts } from "@/app/lib/data";
 
 export default async function BlogPostPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params; // Await params in Next.js 15+
-  const post = getPostBySlug(slug);
+  const { slug } = await params;
 
-  const content = (blogContent as any)[slug];
+  // 1. Fetch the Post from Postgres
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  const category = getCategoryBySlug(post.category);
-  const categoryName = category ? category.name : post.category;
+  // 2. Fetch Related Posts (using the category ID from the fetched post)
+  const relatedPosts = await getRelatedPosts(post.categoryId, post.slug);
 
-  // Subcategory logic
-  let subcategoryName = "";
-  if (category && category.subcategories) {
-    const sub = category.subcategories.find(
-      (s: any) => s.slug === post.subcategory,
-    );
-    if (sub) subcategoryName = sub.name;
-  }
+  // 3. Prepare data for the Client Component
+  // In DB, content is stored directly on the post object as JSON
+  const content = post.content;
 
-  // Related posts logic
-  const relatedPosts = blogPosts
-    .filter((p) => p.category === post.category && p.slug !== post.slug)
-    .slice(0, 3);
+  // Relations are already fetched via 'include', so we just access them
+  const categoryName = post.category.name;
+  const subcategoryName = post.subcategory?.name || "";
 
   return (
     <BlogPostClient

@@ -5,7 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Menu, X, Sparkles } from "lucide-react";
 import Link from "next/link"; // <--- Use Next.js Link, not <a> tags
 import { useTheme } from "next-themes"; // <--- Import the hook
-import { navLinks } from "@/app/data/mock";
+
+const navLinks = [
+  { name: "Latest", href: "/" },
+  { name: "Blogs", href: "/blogs" },
+  {
+    name: "Portfolio",
+    href: "https://kaushik-dutta.vercel.app/",
+    target: "_blank",
+  },
+];
 
 const Header = () => {
   const { theme, setTheme } = useTheme(); // <--- This manages the theme for you

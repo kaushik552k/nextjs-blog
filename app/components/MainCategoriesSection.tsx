@@ -4,11 +4,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Database, Code2, Brain } from "lucide-react";
-import { mainCategories, getPostsByCategory } from "@/app/data/mock";
 
 const iconMap: any = { Database, Code2, Brain };
 
-const MainCategoriesSection = () => {
+type Props = {
+  categories: any[]; // We can use 'any' or the real Prisma type
+};
+
+const MainCategoriesSection = ({ categories }: Props) => {
   return (
     <section className="py-20 px-6">
       <div className="max-w-6xl mx-auto">
@@ -29,9 +32,8 @@ const MainCategoriesSection = () => {
 
         {/* Main Categories Grid */}
         <div className="grid md:grid-cols-3 gap-6">
-          {mainCategories.map((category, index) => {
+          {categories.map((category, index) => {
             const IconComponent = iconMap[category.icon] || Code2;
-            const posts = getPostsByCategory(category.slug);
             const remainingCount = Math.max(
               0,
               category.subcategories.length - 3,
@@ -94,7 +96,7 @@ const MainCategoriesSection = () => {
                       {/* Footer */}
                       <div className="flex items-center justify-between pt-4 border-t border-border">
                         <span className="text-sm text-muted-foreground">
-                          {posts.length} articles
+                          {category._count.posts} articles
                         </span>
                         <motion.span
                           className="flex items-center gap-1 text-sm font-semibold text-pink-500"
@@ -123,7 +125,7 @@ const MainCategoriesSection = () => {
           <h3 className="text-lg font-semibold text-foreground mb-4">
             All Topics
           </h3>
-          <AllTopicsGrid />
+          <AllTopicsGrid categories={categories} />
         </motion.div>
       </div>
     </section>
@@ -131,13 +133,11 @@ const MainCategoriesSection = () => {
 };
 
 // Separate component for all topics grid
-const AllTopicsGrid = () => {
+const AllTopicsGrid = ({ categories }: { categories: any[] }) => {
   // Build flat list of all topics
   const allTopics = [];
-  for (let i = 0; i < mainCategories.length; i++) {
-    const cat = mainCategories[i];
-    for (let j = 0; j < cat.subcategories.length; j++) {
-      const sub = cat.subcategories[j];
+  for (const cat of categories) {
+    for (const sub of cat.subcategories) {
       allTopics.push({
         key: cat.slug + "-" + sub.slug,
         name: sub.name,

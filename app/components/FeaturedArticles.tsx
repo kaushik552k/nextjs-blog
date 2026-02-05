@@ -2,20 +2,20 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link"; // Changed from react-router-dom
-import { ArrowRight, Clock, Heart, ChevronDown } from "lucide-react";
-import { getFeaturedPosts, blogPosts, mainCategories } from "@/app/data/mock";
+import Link from "next/link";
+import { Clock, Heart, ChevronDown } from "lucide-react";
 
-const FeaturedArticles = () => {
+// Define the shape of data we expect from the parent
+type Props = {
+  featuredPosts: any[];
+  latestPosts: any[];
+};
+
+const FeaturedArticles = ({ featuredPosts, latestPosts }: Props) => {
   const [showAll, setShowAll] = useState(false);
-  const featuredPosts = getFeaturedPosts();
-  const otherPosts = blogPosts.filter((p) => !p.featured);
-  const displayedPosts = showAll ? otherPosts : otherPosts.slice(0, 6);
 
-  const getCategoryName = (categorySlug: string) => {
-    const cat = mainCategories.find((c) => c.slug === categorySlug);
-    return cat?.name || categorySlug;
-  };
+  // Logic to toggle between showing 6 or all latest posts
+  const displayedPosts = showAll ? latestPosts : latestPosts.slice(0, 6);
 
   return (
     <section className="py-20">
@@ -54,8 +54,9 @@ const FeaturedArticles = () => {
 
                   {/* Content */}
                   <div className="relative h-full flex flex-col justify-end">
+                    {/* Category Badge - Now using post.category.name directly */}
                     <span className="absolute top-0 left-0 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium">
-                      {getCategoryName(post.category)}
+                      {post.category.name}
                     </span>
 
                     <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
@@ -72,7 +73,7 @@ const FeaturedArticles = () => {
                       <div className="flex items-center gap-4 text-sm text-white/80">
                         <span className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {post.readingTime}
+                          {post.readingTime} min
                         </span>
                         <span className="flex items-center gap-1">
                           <Heart className="w-4 h-4" />
@@ -103,13 +104,14 @@ const FeaturedArticles = () => {
               <Link href={`/blog/${post.slug}`} className="group block h-full">
                 <div className="h-full p-5 rounded-xl bg-card border border-border hover:border-primary/50 transition-all">
                   <div className="flex items-center gap-2 mb-3">
+                    {/* Category Badge - Using post.category.name */}
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r ${post.gradient} text-white`}
                     >
-                      {getCategoryName(post.category)}
+                      {post.category.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {post.readingTime}
+                      {post.readingTime} min
                     </span>
                   </div>
 
@@ -127,7 +129,7 @@ const FeaturedArticles = () => {
         </div>
 
         {/* Show More Button */}
-        {otherPosts.length > 6 && (
+        {latestPosts.length > 6 && (
           <div className="flex justify-center mt-10">
             <motion.button
               onClick={() => setShowAll(!showAll)}

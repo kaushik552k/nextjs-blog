@@ -4,9 +4,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Trophy, ArrowRight, Star, Heart } from "lucide-react";
-import { popularContent } from "@/app/data/mock";
 
-const PopularSection = () => {
+type Props = {
+  popularPosts: any[];
+};
+
+const PopularSection = ({ popularPosts }: Props) => {
   return (
     <section className="py-20 px-6 bg-secondary/30">
       <div className="max-w-6xl mx-auto">
@@ -30,7 +33,7 @@ const PopularSection = () => {
         </motion.div>
 
         <div className="space-y-3">
-          {popularContent.map((item, index) => (
+          {popularPosts.map((item, index) => (
             <motion.div
               key={item.slug}
               initial={{ opacity: 0, x: -30 }}
@@ -70,7 +73,7 @@ const PopularSection = () => {
                   </h3>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-sm text-muted-foreground">
-                      {item.category}
+                      {item.category.name}
                     </span>
                     <span className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Heart className="w-3 h-3" />
