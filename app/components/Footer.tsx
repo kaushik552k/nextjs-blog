@@ -6,28 +6,35 @@ import {
   Github,
   Twitter,
   Youtube,
+  Instagram,
   Rss,
   Heart,
   Mail,
   ExternalLink,
+  Linkedin,
 } from "lucide-react";
 import Link from "next/link";
 
 const Footer = () => {
   const socialLinks = [
     {
-      name: "Twitter",
-      icon: Twitter,
-      href: "https://twitter.com/joshwcomeau",
+      name: "LinkedIn",
+      icon: Linkedin,
+      href: "https://www.linkedin.com/in/master-kaushik-dutta/",
       color: "hover:text-cyan-400",
     },
     {
       name: "GitHub",
       icon: Github,
-      href: "https://github.com/joshwcomeau",
+      href: "https://github.com/kaushik552k",
       color: "hover:text-purple-400",
     },
-    { name: "YouTube", icon: Youtube, href: "#", color: "hover:text-red-400" },
+    {
+      name: "Instagram",
+      icon: Instagram,
+      href: "#",
+      color: "hover:text-red-400",
+    },
     { name: "RSS", icon: Rss, href: "#", color: "hover:text-orange-400" },
   ];
 
@@ -58,10 +65,10 @@ const Footer = () => {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                J
+                K
               </div>
               <span className="font-bold text-xl text-foreground">
-                Josh W Comeau
+                Master Kaushik Dutta
               </span>
             </div>
             <p className="text-muted-foreground leading-relaxed mb-4">
@@ -129,8 +136,9 @@ const Footer = () => {
             transition={{ delay: 0.2 }}
           >
             <h3 className="font-bold text-lg text-foreground mb-4">Courses</h3>
+            <p>Coming soon...</p>
             <ul className="space-y-3">
-              <li>
+              {/* <li>
                 <Link
                   href="#"
                   className="group flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
@@ -147,7 +155,7 @@ const Footer = () => {
                   <span>The Joy of React</span>
                   <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </motion.div>
         </div>
@@ -167,7 +175,7 @@ const Footer = () => {
             >
               <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
             </motion.span>
-            by Josh W Comeau
+            by Kaushik
           </p>
 
           <div className="flex gap-6">
