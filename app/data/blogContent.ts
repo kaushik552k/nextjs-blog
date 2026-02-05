@@ -1,7 +1,7 @@
 // Full blog post content in MDX-like format
 // Each post contains structured content with components
 
-export const blogContent = {
+export const BACKUP_blogContent = {
   "understanding-distributed-systems": {
     title: "Understanding Distributed Systems",
     subtitle: "A visual guide to building resilient architectures",
@@ -451,4 +451,4 @@ Respond in JSON with this structure:
   },
 };
 
-export default blogContent;
+export default BACKUP_blogContent;

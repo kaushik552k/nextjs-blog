@@ -24,7 +24,7 @@ export type Category = {
   subcategories: SubCategory[];
 };
 
-export const mainCategories: Category[] = [
+export const BACKUP_mainCategories: Category[] = [
   {
     id: "system-design",
     name: "System Design",
@@ -85,7 +85,7 @@ export const mainCategories: Category[] = [
   },
 ];
 
-export const blogPosts = [
+export const BACKUP_blogPosts = [
   // System Design Posts
   {
     id: 1,
@@ -270,7 +270,7 @@ export const blogPosts = [
 ];
 
 // Popular content for sidebar/homepage
-export const popularContent = [
+export const BACKUP_popularContent = [
   {
     title: "An Interactive Guide to Flexbox",
     slug: "interactive-guide-to-flexbox",
@@ -333,38 +333,28 @@ export const popularContent = [
   },
 ];
 
-export const navLinks = [
-  { name: "Latest", href: "/" },
-  { name: "Blogs", href: "/blogs" },
-  {
-    name: "Portfolio",
-    href: "https://kaushik-dutta.vercel.app/",
-    target: "_blank",
-  },
-];
-
 export const getPostsByCategory = (categorySlug: string) => {
-  return blogPosts.filter((post) => post.category === categorySlug);
+  return BACKUP_blogPosts.filter((post) => post.category === categorySlug);
 };
 
 export const getPostsBySubcategory = (
   categorySlug: string,
   subcategorySlug: string,
 ) => {
-  return blogPosts.filter(
+  return BACKUP_blogPosts.filter(
     (post) =>
       post.category === categorySlug && post.subcategory === subcategorySlug,
   );
 };
 
 export const getFeaturedPosts = () => {
-  return blogPosts.filter((post) => post.featured);
+  return BACKUP_blogPosts.filter((post) => post.featured);
 };
 
 export const getPostBySlug = (slug: string) => {
-  return blogPosts.find((post) => post.slug === slug);
+  return BACKUP_blogPosts.find((post) => post.slug === slug);
 };
 
 export const getCategoryBySlug = (slug: string) => {
-  return mainCategories.find((cat) => cat.slug === slug);
+  return BACKUP_mainCategories.find((cat) => cat.slug === slug);
 };
