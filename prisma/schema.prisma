@@ -1,0 +1,128 @@
+// 1. Configuration
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// USER & AUTHENTICATION
+// ==========================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String   // Hashed
+  avatar    String?  // URL to profile image
+  bio       String?
+  role      Role     @default(USER) // Admin vs Visitor
+  
+  posts     Post[]   // One author, many posts
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ==========================================
+// BLOG POSTS (The Core)
+// ==========================================
+
+model Post {
+  id          String    @id @default(uuid())
+  
+  // 1. Content & SEO
+  title       String
+  subtitle    String?   // "A visual guide to..."
+  slug        String    @unique
+  excerpt     String?   // Short description for cards
+  
+  // 2. The Body (Crucial for your mock data structure)
+  // We use JSONB to store the array: [{ type: "code", ... }, { type: "callout", ... }]
+  content     Json      
+  
+  // 3. Metadata
+  coverImage  String?
+  readingTime Int       // Store as Integer (minutes), format as "18 min read" on frontend
+  likes       Int       @default(0)
+  featured    Boolean   @default(false)
+  published   Boolean   @default(false)
+  
+  // 4. Visuals (From your mock data)
+  gradient    String?   // e.g. "from-violet-500 to-purple-600"
+  
+  // 5. Relations
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String
+
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  String
+
+  // Optional: A post might belong to a specific subcategory
+  subcategory SubCategory? @relation(fields: [subcategoryId], references: [id])
+  subcategoryId String?
+
+  tags        Tag[]     // Many-to-Many
+
+  // 6. Timestamps
+  publishedAt DateTime? // Nullable (if draft)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([published])
+  @@index([featured])
+}
+
+// ==========================================
+// TAXONOMY (Categories & Tags)
+// ==========================================
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique // "System Design"
+  slug        String   @unique // "system-design"
+  description String?
+  
+  // Visuals for the Category Page
+  gradient    String?  // "from-violet-500 to-purple-600"
+  icon        String?  // "Database" (Lucide Icon Name)
+  
+  // Hierarchy
+  subcategories SubCategory[]
+  posts         Post[]
+
+  createdAt   DateTime @default(now())
+}
+
+model SubCategory {
+  id          String   @id @default(uuid())
+  name        String   // "Distributed Systems"
+  slug        String   // "distributed-systems"
+  
+  // Relation to Parent Category
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+
+  posts       Post[]
+  
+  // Composite unique constraint: 
+  // You can have "Architecture" under "System Design" AND "Web Dev" if you really wanted,
+  // but usually slug should be globally unique. Let's keep slug unique.
+  @@unique([slug])
+}
+
+model Tag {
+  id    String @id @default(uuid())
+  name  String @unique // "nextjs"
+  slug  String @unique // "nextjs"
+  posts Post[]
+}
