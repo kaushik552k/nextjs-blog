@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules
+.pnp
+.pnp.js
+
+# Next.js build output
+.next
+
+# Version control
+.git
+
+# Infrastructure & Secrets (The Fix!)
+certbot
+nginx
+Dockerfile
+docker-compose.yml
+README.md
