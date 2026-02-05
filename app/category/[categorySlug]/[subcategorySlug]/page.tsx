@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import CategoryView from "@/app/components/CategoryView";
 import { getCategoryBySlug, getPostsBySubcategory } from "@/app/lib/data"; // New Import
 
+export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{
     categorySlug: string;

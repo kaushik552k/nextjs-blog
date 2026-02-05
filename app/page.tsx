@@ -9,6 +9,8 @@ import {
   getPopularPosts,
 } from "@/app/lib/data";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   // 1. Parallel Fetching for performance
   const [categories, featuredPosts, latestPosts, popularPosts] =

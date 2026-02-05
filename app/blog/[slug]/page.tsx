@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import BlogPostClient from "@/app/components/BlogPostClient";
 import { getPostBySlug, getRelatedPosts } from "@/app/lib/data";
 
+export const dynamic = "force-dynamic";
+
 export default async function BlogPostPage({
   params,
 }: {

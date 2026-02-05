@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import CategoryView from "@/app/components/CategoryView";
 import { getCategoryBySlug, getPostsByCategory } from "@/app/lib/data"; // New Import
 
+export const dynamic = "force-dynamic";
 export default async function CategoryPage({
   params,
 }: {
