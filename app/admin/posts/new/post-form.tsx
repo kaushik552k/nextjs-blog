@@ -2,8 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { createPost, updatePost } from "@/app/lib/actions"; // 👈 Import updatePost
-import { Save, ArrowLeft } from "lucide-react";
+import { createPost, updatePost } from "@/app/lib/actions";
+import { Save, ArrowLeft, AlertCircle } from "lucide-react"; // 👈 Added AlertCircle for errors
 import Link from "next/link";
 import { useActionState } from "react";
 import PostEditor from "./post-editor";
@@ -25,7 +25,7 @@ interface PostData {
 
 interface PostFormProps {
   categories: any[];
-  initialData?: PostData | null; // 👈 Optional Prop for Edit Mode
+  initialData?: PostData | null;
 }
 
 export default function PostForm({ categories, initialData }: PostFormProps) {
@@ -34,17 +34,27 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
 
   const [state, formAction, isPending] = useActionState(action, null);
 
-  // 2. Setup Form with Default Values (if editing)
-  const { register, setValue, watch } = useForm({
+  // 2. Setup Form with Validation Mode
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { errors, isValid }, // 👈 Get error state
+  } = useForm({
+    mode: "onChange", // 👈 Validate in real-time
     defaultValues: {
       title: initialData?.title || "",
       slug: initialData?.slug || "",
       image: initialData?.image || "",
       excerpt: initialData?.excerpt || "",
       categoryId: initialData?.categoryId || "",
-      published: initialData?.published ? "true" : "false", // Convert boolean to string for select
+      published: initialData?.published ? "true" : "false",
       featured: initialData?.featured ?? false,
       tags: initialData?.tags?.map((t) => t.name).join(", ") || "",
+      // Initialize content for validation tracking
+      content: initialData?.content
+        ? JSON.stringify(initialData.content)
+        : "[]",
     },
   });
 
@@ -57,13 +67,21 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
 
   const [jsonContent, setJsonContent] = useState(JSON.stringify(initialBlocks));
 
+  // Sync Editor to Form Validation
+  const handleEditorChange = (blocks: any[]) => {
+    const stringified = JSON.stringify(blocks);
+    setJsonContent(stringified);
+    // Manually update the hidden form field so 'isValid' knows about it
+    setValue("content", stringified, { shouldValidate: true });
+  };
+
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const title = e.target.value;
-    setValue("title", title);
-    // Only auto-generate slug if we are creating a NEW post (don't change it on edit unless user wants to)
+    setValue("title", title, { shouldValidate: true });
+    // Only auto-generate slug if we are creating a NEW post
     if (!initialData) {
       const slug = slugify(title, { lower: true, strict: true });
-      setValue("slug", slug);
+      setValue("slug", slug, { shouldValidate: true });
     }
   };
 
@@ -85,8 +103,14 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
         <button
           form="post-form"
           type="submit"
-          disabled={isPending}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 disabled:opacity-50"
+          disabled={isPending || !isValid} // 👈 DISABLE IF INVALID
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-bold text-white rounded-lg transition-all
+            ${
+              isPending || !isValid
+                ? "bg-gray-400 cursor-not-allowed opacity-50"
+                : "bg-indigo-600 hover:bg-indigo-500 shadow-md"
+            }
+          `}
         >
           <Save size={16} />
           {isPending ? "Saving..." : "Save"}
@@ -98,44 +122,90 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
         action={formAction}
         className="grid grid-cols-1 lg:grid-cols-3 gap-8"
       >
-        {/* IMPORTANT: If editing, we need to pass the ID */}
         {initialData && (
           <input type="hidden" name="postId" value={initialData.id} />
         )}
 
+        {/* Hidden Content Field for Validation */}
+        <input
+          type="hidden"
+          {...register("content", {
+            validate: (value) => {
+              try {
+                const parsed = JSON.parse(value);
+                return parsed.length > 0 || "Content cannot be empty";
+              } catch (e) {
+                return "Invalid content";
+              }
+            },
+          })}
+          value={jsonContent}
+        />
+
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm space-y-4">
-            <input
-              {...register("title", { required: true })}
-              onChange={handleTitleChange}
-              placeholder="Post Title..."
-              className={`w-full text-4xl font-bold bg-transparent border-none focus:ring-0 placeholder-gray-300 dark:placeholder-gray-700 text-gray-900 dark:text-white px-0
-                ${initialData ? "text-gray-400 cursor-not-allowed bg-gray-100 dark:bg-gray-800" : "text-gray-500"}
-  `}
-            />
+            {/* TITLE */}
+            <div>
+              <input
+                {...register("title", { required: "Title is required" })}
+                onChange={handleTitleChange}
+                placeholder="Post Title..."
+                className={`w-full text-4xl font-bold bg-transparent border-none focus:ring-0 px-0 
+                    ${errors.title ? "placeholder-red-300" : "placeholder-gray-300 dark:placeholder-gray-700"}
+                  `}
+              />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} /> {errors.title.message as string}
+                </p>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <input
-                {...register("slug", { required: true })}
-                readOnly={!!initialData}
-                placeholder="post-slug-url"
-                className="w-full text-sm font-mono text-gray-500 bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"
-              />
-              <select
-                {...register("categoryId", { required: true })}
-                className="w-full text-sm bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-600 dark:text-gray-300"
-              >
-                <option value="" disabled>
-                  Select Category...
-                </option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+              {/* SLUG */}
+              <div className="flex flex-col">
+                <input
+                  {...register("slug", { required: "Slug is required" })}
+                  readOnly={!!initialData}
+                  placeholder="post-slug-url"
+                  className={`w-full text-sm font-mono bg-transparent border rounded-md px-3 py-2 
+                        ${initialData ? "text-gray-400 cursor-not-allowed bg-gray-50" : "text-gray-500"}
+                        ${errors.slug ? "border-red-500 bg-red-50" : "border-gray-200 dark:border-gray-700"}
+                    `}
+                />
+                {errors.slug && (
+                  <span className="text-red-500 text-xs mt-1">
+                    {errors.slug.message as string}
+                  </span>
+                )}
+              </div>
+
+              {/* CATEGORY */}
+              <div className="flex flex-col">
+                <select
+                  {...register("categoryId", {
+                    required: "Please select a category",
+                  })}
+                  className={`w-full text-sm bg-transparent border rounded-md px-3 py-2 text-gray-600 dark:text-gray-300
+                        ${errors.categoryId ? "border-red-500 bg-red-50" : "border-gray-200 dark:border-gray-700"}
+                    `}
+                >
+                  <option value="">Select Category...</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.categoryId && (
+                  <span className="text-red-500 text-xs mt-1">
+                    {errors.categoryId.message as string}
+                  </span>
+                )}
+              </div>
             </div>
+
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                 Tags (comma separated)
@@ -150,6 +220,7 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
                 automatically.
               </p>
             </div>
+
             <textarea
               {...register("excerpt")}
               placeholder="Short excerpt for SEO..."
@@ -157,12 +228,18 @@ export default function PostForm({ categories, initialData }: PostFormProps) {
             />
           </div>
 
-          {/* Pass initialBlocks to the Editor */}
-          <PostEditor
-            initialBlocks={initialBlocks}
-            onChange={(blocks) => setJsonContent(JSON.stringify(blocks))}
-          />
-          <input type="hidden" name="content" value={jsonContent} />
+          {/* EDITOR */}
+          <div className="space-y-2">
+            <PostEditor
+              initialBlocks={initialBlocks}
+              onChange={handleEditorChange}
+            />
+            {errors.content && (
+              <p className="text-red-500 text-sm flex items-center gap-1 justify-end">
+                <AlertCircle size={14} /> Post content cannot be empty
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Right Column */}
