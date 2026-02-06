@@ -3,6 +3,8 @@ import { prisma } from "@/app/lib/prisma"; // Adjust path if needed
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 export default async function PostsManager() {
   // Fetch all posts, sorted by newest first
   const posts = await prisma.post.findMany({

@@ -1,6 +1,7 @@
 import { prisma } from "@/app/lib/prisma";
 import PostForm from "./post-form";
 
+export const dynamic = "force-dynamic";
 export default async function NewPostPage() {
   // Fetch categories to populate the dropdown
   const categories = await prisma.category.findMany({
