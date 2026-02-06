@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/app/lib/prisma";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 // Helper to calculate reading time from JSON blocks if not saved in DB
 // (Optional since we now save it, but good fallback)
 function getExcerpt(content: any) {
