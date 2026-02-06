@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Poppins, Fira_Code } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import Header from "@/app/components/Header";
-import Footer from "@/app/components/Footer";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -31,14 +29,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${firaCode.variable} antialiased noise-overlay`}
       >
+        {/* ThemeProvider wraps EVERYTHING (Admin + Main) so dark mode works everywhere */}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="min-h-screen bg-[rgb(var(--color-background))] flex flex-col">
-            <Header />
-            <main className="grow container mx-auto max-w-6xl px-4 py-8">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>

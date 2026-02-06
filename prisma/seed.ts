@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
 // ⚠️ Update these paths to match where you saved your mock files!
 import {
   BACKUP_blogPosts,
@@ -35,6 +37,9 @@ async function main() {
   // ==========================================
   // 1. Create the Author (You)
   // ==========================================
+
+  const hashedPassword = await bcrypt.hash("securepassword123", 10);
+
   const author = await prisma.user.create({
     data: {
       email: "codewithkaushikdutta@gmail.com",
@@ -42,7 +47,7 @@ async function main() {
       role: "ADMIN",
       avatar: siteConfig.avatar.light,
       bio: siteConfig.tagline,
-      password: "securepassword123",
+      password: hashedPassword,
     },
   });
   console.log(`👤 Author ensured: ${author.name}`);
@@ -50,6 +55,7 @@ async function main() {
   // ==========================================
   // 2. Create Categories & Subcategories
   // ==========================================
+
   for (const cat of BACKUP_mainCategories) {
     const category = await prisma.category.upsert({
       where: { slug: cat.slug },

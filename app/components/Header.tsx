@@ -8,7 +8,7 @@ import { useTheme } from "next-themes"; // <--- Import the hook
 
 const navLinks = [
   { name: "Latest", href: "/" },
-  { name: "Blogs", href: "/blogs" },
+  { name: "Blogs", href: "/blog" },
   {
     name: "Portfolio",
     href: "https://kaushik-dutta.vercel.app/",

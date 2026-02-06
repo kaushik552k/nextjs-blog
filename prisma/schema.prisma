@@ -55,7 +55,7 @@ model Post {
   likes       Int       @default(0)
   featured    Boolean   @default(false)
   published   Boolean   @default(false)
-  
+  image       String?
   // 4. Visuals (From your mock data)
   gradient    String?   // e.g. "from-violet-500 to-purple-600"
   

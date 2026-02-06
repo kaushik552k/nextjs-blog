@@ -113,12 +113,14 @@ const Footer = () => {
               <div className="relative flex-grow">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
+                  suppressHydrationWarning
                   type="email"
                   placeholder="your@email.com"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
                 />
               </div>
               <motion.button
+                suppressHydrationWarning
                 className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
