@@ -9,9 +9,11 @@ services:
       - "3000"
     environment:
       - NODE_ENV=production
+      - AUTH_TRUST_HOST=true
       # This connection string tells Next.js how to talk to the DB
       # Format: postgres://user:password@host:port/dbname
       - DATABASE_URL=postgresql://kaushik:securepassword123@postgres:5432/blogdb
+      - AUTH_SECRET="PrbwQag16F6x3zlBLUCMv9gbhJPq562ahz2xD9SVzaQ="
     depends_on:
       - postgres
 
