@@ -87,8 +87,7 @@ export default async function PostsManager() {
                   })}
                 </td>
                 <td className="px-6 py-4 text-gray-500">
-                  {/* If you have a 'views' field, show it. Otherwise verify schema */}
-                  {/* {post.views} */} -
+                  {post.views?.toLocaleString() || 0}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">

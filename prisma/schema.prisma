@@ -54,6 +54,7 @@ model Post {
   coverImage  String?
   readingTime Int       // Store as Integer (minutes), format as "18 min read" on frontend
   likes       Int       @default(0)
+  views       Int       @default(0)  // Track post views
   featured    Boolean   @default(false)
   published   Boolean   @default(false)
   image       String?

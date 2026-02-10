@@ -20,21 +20,31 @@ const LikeButton = ({
   // ✅ Destructure sound functions
   const { playCelebration } = useSoundEffect();
 
-  // Safe local storage check
+  // Check if user has already liked this post
   useEffect(() => {
     if (!postSlug) return;
-    try {
-      const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}");
-      if (likedPosts[postSlug]) {
-        setIsLiked(true);
-        setClickCount(likedPosts[postSlug].clicks || 0);
-      }
-    } catch (e) {
-      // Ignore errors parsing local storage
+    const storageKey = `liked_${postSlug}`;
+    const hasLiked = localStorage.getItem(storageKey);
+    if (hasLiked) {
+      setIsLiked(true);
     }
   }, [postSlug]);
 
-  const handleLike = () => {
+  const handleLike = async () => {
+    // Check if already liked this post
+    if (!postSlug) return;
+
+    const storageKey = `liked_${postSlug}`;
+    const hasLiked = localStorage.getItem(storageKey);
+
+    if (hasLiked) {
+      // Already liked, just show animation
+      playCelebration();
+      setShowParticles(true);
+      setTimeout(() => setShowParticles(false), 600);
+      return;
+    }
+
     // ✅ 1. Play Sound
     playCelebration();
 
@@ -42,22 +52,33 @@ const LikeButton = ({
     setShowParticles(true);
     setTimeout(() => setShowParticles(false), 600);
 
-    // 3. Update State
+    // 3. Optimistic Update
+    const previousLikes = likes;
     setLikes((prev) => prev + 1);
-    setClickCount((prev) => prev + 1);
+    setIsLiked(true);
 
-    if (!isLiked) {
-      setIsLiked(true);
-    }
+    // 4. Save to Local Storage (prevent duplicate likes)
+    localStorage.setItem(storageKey, "true");
 
-    // 4. Save to Local Storage
-    if (postSlug) {
-      const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}");
-      likedPosts[postSlug] = {
-        liked: true,
-        clicks: clickCount + 1,
-      };
-      localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
+    // 5. Persist to Database
+    try {
+      const response = await fetch(`/api/posts/${postSlug}/like`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save like");
+      }
+
+      const data = await response.json();
+      // Sync with server response
+      setLikes(data.likes);
+    } catch (error) {
+      console.error("Error saving like:", error);
+      // Revert on error
+      setLikes(previousLikes);
+      setIsLiked(false);
+      localStorage.removeItem(storageKey);
     }
   };
 
@@ -84,11 +105,10 @@ const LikeButton = ({
         whileTap={{ scale: 0.95 }}
       >
         <div
-          className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${
-            isLiked
-              ? "bg-gradient-to-br from-pink-500 to-rose-600 shadow-lg shadow-pink-500/30"
-              : "bg-card border-2 border-border hover:border-pink-400"
-          }`}
+          className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isLiked
+            ? "bg-gradient-to-br from-pink-500 to-rose-600 shadow-lg shadow-pink-500/30"
+            : "bg-card border-2 border-border hover:border-pink-400"
+            }`}
         >
           {/* Background Pulse */}
           <motion.div
@@ -105,11 +125,10 @@ const LikeButton = ({
             transition={{ duration: 0.4, ease: "easeInOut" }}
           >
             <Heart
-              className={`w-7 h-7 transition-all duration-300 ${
-                isLiked
-                  ? "text-white fill-white"
-                  : "text-muted-foreground group-hover:text-pink-500"
-              }`}
+              className={`w-7 h-7 transition-all duration-300 ${isLiked
+                ? "text-white fill-white"
+                : "text-muted-foreground group-hover:text-pink-500"
+                }`}
             />
           </motion.div>
 

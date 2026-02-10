@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Calendar, Clock, Tag, ArrowRight } from "lucide-react";
+import { Calendar, Clock, Tag, ArrowRight, Eye } from "lucide-react";
 import LikeButton from "@/app/components/LikeButton";
 import MDXRenderer from "@/app/components/MDXRenderer";
 import TableOfContents from "@/app/components/TableOfContents";
+import SocialShare from "@/app/components/SocialShare";
 
 export default function BlogPostClient({
   post,
@@ -14,6 +16,18 @@ export default function BlogPostClient({
   subcategoryName,
   relatedPosts,
 }: any) {
+  // Track view on page load
+  useEffect(() => {
+    const trackView = async () => {
+      try {
+        await fetch(`/api/posts/${post.slug}/view`, { method: "POST" });
+      } catch (error) {
+        console.error("Failed to track view:", error);
+      }
+    };
+    trackView();
+  }, [post.slug]);
+
   // Helper to format the database date
   const formatDate = (date: any) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -79,6 +93,10 @@ export default function BlogPostClient({
                   <Clock className="w-4 h-4" />
                   {post.readingTime} min read
                 </span>
+                <span className="flex items-center gap-1.5">
+                  <Eye className="w-4 h-4" />
+                  {post.views?.toLocaleString() || 0} views
+                </span>
               </div>
             </motion.header>
 
@@ -102,9 +120,15 @@ export default function BlogPostClient({
               <MDXRenderer content={content || []} />
             </div>
 
+            {/* Social Share */}
+            <SocialShare
+              url={`${typeof window !== 'undefined' ? window.location.origin : ''}/blog/${post.slug}`}
+              title={post.title}
+            />
+
             {/* Like Section */}
-            <div className="mt-16 py-12 border-t border-b border-border flex flex-col items-center">
-              <LikeButton postSlug={post.slug} />
+            <div className="mt-8 py-12 border-t border-b border-border flex flex-col items-center">
+              <LikeButton postSlug={post.slug} initialLikes={post.likes || 0} />
             </div>
 
             {/* Related Posts */}

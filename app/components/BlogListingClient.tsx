@@ -14,6 +14,7 @@ import {
     Heart,
     TrendingUp,
     Sparkles,
+    Eye,
 } from "lucide-react";
 
 type Post = {
@@ -25,6 +26,7 @@ type Post = {
     readingTime: number;
     content: any;
     likes: number;
+    views?: number;
     category: {
         id: string;
         name: string;
@@ -382,6 +384,10 @@ function GridCard({ post }: { post: Post }) {
                         <Heart className="w-3 h-3" />
                         {(post.likes / 1000).toFixed(1)}k
                     </span>
+                    <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {post.views ? (post.views / 1000).toFixed(1) + 'k' : '0'}
+                    </span>
                 </div>
 
                 {/* Title */}
@@ -473,6 +479,10 @@ function ListCard({ post }: { post: Post }) {
                         <span className="flex items-center gap-1">
                             <Heart className="w-3 h-3" />
                             {(post.likes / 1000).toFixed(1)}k
+                        </span>
+                        <span className="flex items-center gap-1">
+                            <Eye className="w-3 h-3" />
+                            {post.views ? (post.views / 1000).toFixed(1) + 'k' : '0'}
                         </span>
                         {post.likes > 5000 && (
                             <span className="flex items-center gap-1 text-amber-500">
