@@ -7,7 +7,7 @@ import Link from "next/link"; // <--- Use Next.js Link, not <a> tags
 import { useTheme } from "next-themes"; // <--- Import the hook
 
 const navLinks = [
-  { name: "Latest", href: "/" },
+  { name: "Latest", href: "/latest" },
   { name: "Blogs", href: "/blog" },
   {
     name: "Portfolio",
@@ -47,11 +47,10 @@ const Header = () => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
             ? "bg-background/80 backdrop-blur-xl border-b border-border"
             : "bg-transparent"
-        }`}
+          }`}
       >
         <div className="max-w-6xl mx-auto px-6 py-4">
           <nav className="flex items-center justify-between">
