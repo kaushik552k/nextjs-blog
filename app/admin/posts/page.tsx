@@ -40,7 +40,9 @@ export default async function PostsManager() {
           <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400">
             <tr>
               <th className="px-6 py-4 font-medium">Title</th>
+              <th className="px-6 py-4 font-medium">Status</th>
               <th className="px-6 py-4 font-medium">Published</th>
+              <th className="px-6 py-4 font-medium">Last Updated</th>
               <th className="px-6 py-4 font-medium">Views</th>
               <th className="px-6 py-4 font-medium text-right">Actions</th>
             </tr>
@@ -57,8 +59,32 @@ export default async function PostsManager() {
                   </div>
                   <div className="text-xs text-gray-500">{post.slug}</div>
                 </td>
+                <td className="px-6 py-4">
+                  {post.published ? (
+                    <span className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/20 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-400">
+                      Published
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                      Draft
+                    </span>
+                  )}
+                </td>
                 <td className="px-6 py-4 text-gray-500">
-                  {new Date(post.createdAt).toLocaleDateString()}
+                  {post.published && post.publishedAt
+                    ? new Date(post.publishedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                    : "-"}
+                </td>
+                <td className="px-6 py-4 text-gray-500">
+                  {new Date(post.updatedAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </td>
                 <td className="px-6 py-4 text-gray-500">
                   {/* If you have a 'views' field, show it. Otherwise verify schema */}
@@ -70,12 +96,14 @@ export default async function PostsManager() {
                       href={`/blog/${post.slug}`}
                       target="_blank"
                       className="rounded p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                      title="Preview"
                     >
                       <Eye size={16} />
                     </Link>
                     <Link
                       href={`/admin/posts/${post.id}/edit`}
                       className="rounded p-2 text-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
+                      title="Edit"
                     >
                       <Pencil size={16} />
                     </Link>
@@ -83,7 +111,10 @@ export default async function PostsManager() {
                     {/* Delete Button Form */}
                     <form action={deletePost}>
                       <input type="hidden" name="postId" value={post.id} />
-                      <button className="rounded p-2 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20">
+                      <button
+                        className="rounded p-2 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+                        title="Delete"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </form>

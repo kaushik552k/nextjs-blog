@@ -17,11 +17,29 @@ const ParagraphBlock = ({ content, index }: any) => (
   </motion.p>
 );
 
-const Heading2Block = ({ content }: any) => (
-  <h2 className="text-2xl sm:text-3xl font-bold text-foreground mt-12 mb-6">
-    {content}
-  </h2>
-);
+// Helper to create URL-friendly IDs from heading text
+const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+};
+
+const Heading2Block = ({ content, level = 2 }: any) => {
+  const id = slugify(content);
+  const sizeClass = level === 2
+    ? "text-2xl sm:text-3xl"
+    : "text-xl sm:text-2xl";
+
+  return React.createElement(
+    `h${level}`,
+    {
+      id,
+      className: `${sizeClass} font-bold text-foreground mt-12 mb-6 scroll-mt-24`,
+    },
+    content
+  );
+};
 
 const ListBlock = ({ items }: any) => (
   <ul className="list-disc list-inside space-y-2 mb-6 text-muted-foreground">
@@ -49,7 +67,7 @@ const MDXRenderer = ({ content }: { content: any[] }) => {
         if (block.type === "paragraph")
           return <ParagraphBlock key={key} content={block.content} index={i} />;
         if (block.type === "heading")
-          return <Heading2Block key={key} content={block.content} />;
+          return <Heading2Block key={key} content={block.content} level={block.level || 2} />;
         if (block.type === "callout")
           return (
             <Callout key={key} variant={block.variant} title={block.title}>

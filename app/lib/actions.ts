@@ -10,11 +10,11 @@ import { z } from "zod";
 function parseTags(tagsString: string | undefined) {
   if (!tagsString) return [];
   return tagsString
-    .split(",") // Split by comma
-    .map((tag) => tag.trim()) // Remove extra spaces
-    .filter((tag) => tag.length > 0) // Remove empty strings
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.length > 0)
     .map((tag) => ({
-      where: { slug: tag.toLowerCase().replace(/\s+/g, "-") }, // slugify
+      where: { slug: tag.toLowerCase().replace(/\s+/g, "-") },
       create: { name: tag, slug: tag.toLowerCase().replace(/\s+/g, "-") },
     }));
 }
@@ -42,16 +42,21 @@ export async function authenticate(
   }
 }
 
-// 👇 UPDATED SCHEMA: Matches your new form fields
+// 👇 UPDATED SCHEMA: Handles Checkboxes Correctly
 const PostSchema = z.object({
-  title: z.string().min(1),
-  slug: z.string().min(1),
-  content: z.string().min(1),
+  title: z.string().min(1, "Title is required"),
+  slug: z.string().min(1, "Slug is required"),
+  content: z.string().min(1, "Content cannot be empty"),
   image: z.string().optional(),
-  categoryId: z.string().min(1, "Category is required"), // 👈 NEW & REQUIRED
-  excerpt: z.string().optional(), // 👈 NEW
-  featured: z.string().optional(), // 👈 NEW
-  published: z.string().transform((val) => val === "true"),
+  categoryId: z.string().min(1, "Category is required"),
+  excerpt: z.string().optional(),
+
+  // ✅ FIX: Correctly handle Checkbox "on" vs null
+  featured: z.preprocess((val) => val === "on" || val === "true", z.boolean()),
+
+  // Handle Select "true"/"false" strings
+  published: z.preprocess((val) => val === "true", z.boolean()),
+
   tags: z.string().optional(),
 });
 
@@ -76,17 +81,18 @@ export async function createPost(prevState: any, formData: FormData) {
     slug: formData.get("slug"),
     content: formData.get("content"),
     image: formData.get("image"),
-    categoryId: formData.get("categoryId"), // 👈 Fetch from form
-    excerpt: formData.get("excerpt"), // 👈 Fetch from form
-    featured: formData.get("featured"), // 👈 Fetch from form
+    categoryId: formData.get("categoryId"),
+    excerpt: formData.get("excerpt"),
+    featured: formData.get("featured"), // Will be null if unchecked
     published: formData.get("published"),
     tags: formData.get("tags"),
   });
 
   if (!validatedFields.success) {
-    // Helpful error logging
     console.error("Validation Failed:", validatedFields.error.flatten());
-    return { message: "Missing Fields. Please check Category and Title." };
+    return {
+      message: "Missing Fields. Please check Title, Slug, and Category.",
+    };
   }
 
   const {
@@ -96,7 +102,7 @@ export async function createPost(prevState: any, formData: FormData) {
     image,
     categoryId,
     excerpt,
-    featured,
+    featured, // This is now a boolean (true/false)
     published,
     tags,
   } = validatedFields.data;
@@ -125,12 +131,12 @@ export async function createPost(prevState: any, formData: FormData) {
         slug,
         content: contentJson,
         image: image || null,
-        excerpt: excerpt || "", // 👈 Save excerpt
-        featured: featured === "on", // 👈 Convert checkbox "on" to boolean
+        excerpt: excerpt || "",
+        featured, // ✅ No need for '== "on"', it's already boolean
         published,
         readingTime,
         authorId: user.id,
-        categoryId: categoryId, // 👈 FIXED: This satisfies the "Required" error
+        categoryId: categoryId,
         tags: {
           connectOrCreate: parseTags(tags),
         },
@@ -153,10 +159,7 @@ export async function updatePost(prevState: any, formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) return { message: "Unauthorized" };
 
-  // 1. Get the Post ID (Hidden Input)
   const postId = formData.get("postId") as string;
-
-  const isFeatured = formData.get("featured") === "on";
 
   // 2. Validate Fields
   const validatedFields = PostSchema.safeParse({
@@ -166,18 +169,28 @@ export async function updatePost(prevState: any, formData: FormData) {
     image: formData.get("image"),
     categoryId: formData.get("categoryId"),
     excerpt: formData.get("excerpt"),
+    featured: formData.get("featured"),
     published: formData.get("published"),
     tags: formData.get("tags"),
   });
 
   if (!validatedFields.success) {
+    console.error("Validation Failed:", validatedFields.error.flatten());
     return { message: "Missing Fields" };
   }
 
-  const { title, content, image, categoryId, excerpt, published, tags } =
-    validatedFields.data;
+  const {
+    title,
+    content,
+    image,
+    categoryId,
+    excerpt,
+    featured, // Boolean
+    published,
+    tags,
+  } = validatedFields.data;
 
-  // 3. Process Content (Reading Time)
+  // 3. Process Content
   let readingTime = 1;
   let contentJson;
   try {
@@ -199,13 +212,13 @@ export async function updatePost(prevState: any, formData: FormData) {
         content: contentJson,
         image: image || null,
         excerpt: excerpt || "",
-        featured: isFeatured,
+        featured, // ✅ Uses validated boolean
         published,
         readingTime,
         categoryId,
         tags: {
-          set: [], // Disconnect all current tags
-          connectOrCreate: parseTags(tags), // Connect new ones
+          set: [],
+          connectOrCreate: parseTags(tags),
         },
       },
     });
