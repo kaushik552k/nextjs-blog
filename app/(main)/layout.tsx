@@ -1,13 +1,24 @@
-import Header from "@/app/components/Header"; // Make sure path matches your folder structure
+"use client";
+
+import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
+import { usePathname } from "next/navigation";
 
 export default function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isPlayground = pathname === "/playground";
+
+  // Full-screen layout for playground (no header, footer, container)
+  if (isPlayground) {
+    return <>{children}</>;
+  }
+
+  // Normal layout for other pages
   return (
-    // This div structure comes from your old layout to preserve the look
     <div className="min-h-screen bg-[rgb(var(--color-background))] flex flex-col">
       <Header />
 
