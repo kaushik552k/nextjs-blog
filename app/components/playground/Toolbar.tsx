@@ -109,43 +109,43 @@ export default function Toolbar({ canvasRef }: ToolbarProps) {
     };
 
     return (
-        <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg px-3 py-2 flex items-center gap-2">
+        <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg px-2 sm:px-3 py-2 flex items-center gap-1 sm:gap-2 overflow-x-auto max-w-full">
             {/* Zoom Controls */}
-            <div className="flex items-center gap-1 bg-[#2a2a2a] rounded-lg p-1">
+            <div className="flex items-center gap-0.5 sm:gap-1 bg-[#2a2a2a] rounded-lg p-1 flex-shrink-0">
                 <button
                     onClick={() => zoomOut()}
-                    className="p-1.5 hover:bg-[#3a3a3a] rounded transition-colors"
+                    className="p-1 sm:p-1.5 hover:bg-[#3a3a3a] rounded transition-colors touch-manipulation"
                     title="Zoom Out"
                 >
-                    <ZoomOut className="w-4 h-4 text-gray-300" />
+                    <ZoomOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300" />
                 </button>
-                <span className="px-2 text-sm text-gray-300 min-w-[45px] text-center">100%</span>
+                <span className="px-1.5 sm:px-2 text-xs sm:text-sm text-gray-300 min-w-[35px] sm:min-w-[45px] text-center">100%</span>
                 <button
                     onClick={() => zoomIn()}
-                    className="p-1.5 hover:bg-[#3a3a3a] rounded transition-colors"
+                    className="p-1 sm:p-1.5 hover:bg-[#3a3a3a] rounded transition-colors touch-manipulation"
                     title="Zoom In"
                 >
-                    <ZoomIn className="w-4 h-4 text-gray-300" />
+                    <ZoomIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300" />
                 </button>
             </div>
 
             {/* Reset View */}
             <button
                 onClick={() => fitView()}
-                className="p-1.5 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors"
+                className="p-1 sm:p-1.5 bg-[#2a2a2a] hover:bg-[#3a3a3a] rounded-lg transition-colors flex-shrink-0 touch-manipulation"
                 title="Reset"
             >
-                <Maximize2 className="w-4 h-4 text-gray-300" />
+                <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300" />
             </button>
 
             {/* Export */}
-            <div className="relative">
+            <div className="relative flex-shrink-0">
                 <button
                     onClick={() => setShowExportMenu(!showExportMenu)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded-lg transition-colors"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded-lg transition-colors touch-manipulation"
                 >
-                    <Download className="w-4 h-4" />
-                    <span className="text-sm">Export</span>
+                    <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="text-xs sm:text-sm hidden sm:inline">Export</span>
                 </button>
 
                 <AnimatePresence>
@@ -154,17 +154,17 @@ export default function Toolbar({ canvasRef }: ToolbarProps) {
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="absolute top-full mt-2 right-0 w-48 bg-[#2a2a2a] border border-[#3a3a3a] rounded-lg shadow-lg overflow-hidden z-50"
+                            className="absolute top-full mt-2 right-0 w-40 sm:w-48 bg-[#2a2a2a] border border-[#3a3a3a] rounded-lg shadow-lg overflow-hidden z-50"
                         >
                             <button
                                 onClick={handleExportJSON}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#3a3a3a] transition-colors"
+                                className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm text-gray-300 hover:bg-[#3a3a3a] transition-colors touch-manipulation"
                             >
                                 Export as JSON
                             </button>
                             <button
                                 onClick={handleExportPNG}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-[#3a3a3a] transition-colors"
+                                className="w-full px-3 sm:px-4 py-2 text-left text-xs sm:text-sm text-gray-300 hover:bg-[#3a3a3a] transition-colors touch-manipulation"
                             >
                                 Export as PNG
                             </button>
@@ -176,19 +176,19 @@ export default function Toolbar({ canvasRef }: ToolbarProps) {
             {/* Import */}
             <button
                 onClick={handleImport}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded-lg transition-colors"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-300 rounded-lg transition-colors flex-shrink-0 touch-manipulation"
             >
-                <Upload className="w-4 h-4" />
-                <span className="text-sm">Import</span>
+                <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm hidden sm:inline">Import</span>
             </button>
 
             {/* Clear */}
             <button
                 onClick={handleClear}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#2a2a2a] hover:bg-red-600/20 text-gray-300 hover:text-red-500 rounded-lg transition-colors"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-[#2a2a2a] hover:bg-red-600/20 text-gray-300 hover:text-red-500 rounded-lg transition-colors flex-shrink-0 touch-manipulation"
             >
-                <Trash2 className="w-4 h-4" />
-                <span className="text-sm">Clear</span>
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm hidden sm:inline">Clear</span>
             </button>
         </div>
     );

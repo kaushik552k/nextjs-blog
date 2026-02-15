@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 export type CustomComponent = {
     id: string;
     name: string;
-    icon: string;
+    iconName: string; // Changed from 'icon' to match component structure
     typeId: string;
 };
 
@@ -27,6 +27,7 @@ type PlaygroundState = {
     setSelectedNode: (node: Node | null) => void;
     setSelectedEdge: (edge: Edge | null) => void;
     addCustomComponent: (component: CustomComponent) => void;
+    deleteCustomComponent: (id: string) => void;
 
     // Persistence
     loadFromStorage: () => void;
@@ -116,6 +117,19 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
             customComponents: [...state.customComponents, component],
         }));
         // Save custom components separately
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(
+                CUSTOM_COMPONENTS_KEY,
+                JSON.stringify(get().customComponents)
+            );
+        }
+    },
+
+    deleteCustomComponent: (id) => {
+        set((state) => ({
+            customComponents: state.customComponents.filter((c) => c.id !== id),
+        }));
+        // Save to localStorage
         if (typeof window !== 'undefined') {
             localStorage.setItem(
                 CUSTOM_COMPONENTS_KEY,

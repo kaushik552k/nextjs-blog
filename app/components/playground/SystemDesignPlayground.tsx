@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
     Background,
     Node,
@@ -20,6 +20,7 @@ import ReactFlow, {
     BaseEdge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { Menu, X } from 'lucide-react';
 import { usePlaygroundStore } from '@/app/store/playgroundStore';
 import CustomNode from './CustomNode';
 import CustomEdge from './CustomEdge';
@@ -38,6 +39,8 @@ const edgeTypes = {
 export default function SystemDesignPlayground() {
     const canvasRef = useRef<HTMLDivElement>(null);
     const reactFlowInstance = useReactFlow();
+    const [showLeftSidebar, setShowLeftSidebar] = useState(true);
+    const [showRightSidebar, setShowRightSidebar] = useState(false);
 
     const {
         nodes: storeNodes,
@@ -47,10 +50,19 @@ export default function SystemDesignPlayground() {
         setSelectedNode,
         setSelectedEdge,
         loadFromStorage,
+        selectedNode,
+        selectedEdge,
     } = usePlaygroundStore();
 
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+    // Auto-show right sidebar when node/edge is selected
+    useEffect(() => {
+        if (selectedNode || selectedEdge) {
+            setShowRightSidebar(true);
+        }
+    }, [selectedNode, selectedEdge]);
 
     // Load from storage on mount
     useEffect(() => {
@@ -174,18 +186,44 @@ export default function SystemDesignPlayground() {
     }, []);
 
     return (
-        <div className="h-screen w-screen flex flex-col bg-[#0a0a0a] fixed inset-0">
-            {/* Toolbar - Centered */}
-            <div className="flex justify-center pt-4 pb-2 relative z-10">
-                <Toolbar canvasRef={canvasRef} />
+        <div className="h-screen w-screen flex bg-[#0a0a0a] fixed inset-0">
+            {/* Mobile Menu Button */}
+            <button
+                onClick={() => setShowLeftSidebar(!showLeftSidebar)}
+                className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg text-white hover:bg-[#2a2a2a] transition-colors"
+                aria-label="Toggle menu"
+            >
+                {showLeftSidebar ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            {/* Left Sidebar - Component Library (Full Height) */}
+            <div className={`
+                ${showLeftSidebar ? 'translate-x-0' : '-translate-x-full'}
+                lg:translate-x-0
+                fixed lg:relative
+                z-40 lg:z-auto
+                transition-transform duration-300 ease-in-out
+                h-full
+            `}>
+                <ComponentLibrary />
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 flex overflow-hidden">
-                {/* Left Sidebar - Component Library */}
-                <ComponentLibrary />
+            {/* Mobile Overlay */}
+            {showLeftSidebar && (
+                <div
+                    className="lg:hidden fixed inset-0 bg-black/50 z-30"
+                    onClick={() => setShowLeftSidebar(false)}
+                />
+            )}
 
-                {/* Center - Canvas */}
+            {/* Right Content Area */}
+            <div className="flex-1 flex flex-col overflow-hidden relative">
+                {/* Toolbar - Centered and Floating */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-auto max-w-[calc(100vw-2rem)]">
+                    <Toolbar canvasRef={canvasRef} />
+                </div>
+
+                {/* Canvas */}
                 <div
                     ref={canvasRef}
                     className="flex-1 relative"
@@ -223,7 +261,24 @@ export default function SystemDesignPlayground() {
                 </div>
 
                 {/* Right Sidebar - Properties Panel */}
-                <PropertiesPanel />
+                <div className={`
+                    ${showRightSidebar && (selectedNode || selectedEdge) ? 'translate-x-0' : 'translate-x-full'}
+                    lg:translate-x-0
+                    fixed lg:absolute
+                    right-0 top-0 bottom-0
+                    z-40 lg:z-auto
+                    transition-transform duration-300 ease-in-out
+                `}>
+                    <PropertiesPanel />
+                </div>
+
+                {/* Right Sidebar Mobile Overlay */}
+                {showRightSidebar && (selectedNode || selectedEdge) && (
+                    <div
+                        className="lg:hidden fixed inset-0 bg-black/50 z-30"
+                        onClick={() => setShowRightSidebar(false)}
+                    />
+                )}
             </div>
         </div>
     );
