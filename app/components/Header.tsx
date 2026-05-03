@@ -9,6 +9,8 @@ import { useTheme } from "next-themes"; // <--- Import the hook
 const navLinks = [
   { name: "Latest", href: "/latest" },
   { name: "Blogs", href: "/blog" },
+  { name: "Practice", href: "/practice" },
+  // { name: "DSA", href: "/dsa" },
   { name: "Playground", href: "/playground" },
   {
     name: "Portfolio",

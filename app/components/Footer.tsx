@@ -32,7 +32,7 @@ const Footer = () => {
     {
       name: "Instagram",
       icon: Instagram,
-      href: "#",
+      href: "https://www.instagram.com/kaushikkdutta/",
       color: "hover:text-red-400",
     },
     { name: "RSS", icon: Rss, href: "#", color: "hover:text-orange-400" },
