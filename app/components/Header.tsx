@@ -9,6 +9,9 @@ import { useTheme } from "next-themes"; // <--- Import the hook
 const navLinks = [
   { name: "Latest", href: "/latest" },
   { name: "Blogs", href: "/blog" },
+  { name: "Practice", href: "/practice" },
+  // { name: "DSA", href: "/dsa" },
+  { name: "Playground", href: "/playground" },
   {
     name: "Portfolio",
     href: "https://kaushik-dutta.vercel.app/",
@@ -48,8 +51,8 @@ const Header = () => {
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-            ? "bg-background/80 backdrop-blur-xl border-b border-border"
-            : "bg-transparent"
+          ? "bg-background/80 backdrop-blur-xl border-b border-border"
+          : "bg-transparent"
           }`}
       >
         <div className="max-w-6xl mx-auto px-6 py-4">

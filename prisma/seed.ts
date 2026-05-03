@@ -32,6 +32,10 @@ async function main() {
   await prisma.category.deleteMany(); // Then Categories
   await prisma.user.deleteMany(); // Finally, the Users
   await prisma.tag.deleteMany(); // And Tags
+  await prisma.question.deleteMany(); // Interview Questions
+  await prisma.questionCategory.deleteMany(); // Interview Categories
+  await prisma.dsaQuestion.deleteMany(); // DSA Questions
+  await prisma.dsaCategory.deleteMany(); // DSA Categories
   console.log("✨ Database clean.");
 
   // ==========================================
@@ -170,6 +174,123 @@ async function main() {
       },
     });
     console.log(`📝 Post ensured: ${post.title}`);
+  }
+
+  // ==========================================
+  // 4. Create Interview Questions
+  // ==========================================
+  const fs = require('fs');
+  const path = require('path');
+  
+  try {
+    const questionsPath = path.join(__dirname, 'questions_data.json');
+    if (fs.existsSync(questionsPath)) {
+      const questionsData = JSON.parse(fs.readFileSync(questionsPath, 'utf8'));
+      console.log(`📚 Found ${questionsData.length} interview questions to seed.`);
+      
+      for (const q of questionsData) {
+        // Create or find category
+        const sectionName = q.section || "General";
+        const sectionSlug = sectionName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        
+        const category = await prisma.questionCategory.upsert({
+          where: { slug: sectionSlug },
+          update: {},
+          create: {
+            name: sectionName,
+            slug: sectionSlug,
+          }
+        });
+        
+        // Upsert question
+        const questionSlug = q.question.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 100);
+        
+        await prisma.question.upsert({
+          where: { slug: questionSlug },
+          update: {
+            title: q.question,
+            answer: q.answer,
+            difficulty: q.difficulty || "Medium",
+            categoryId: category.id,
+          },
+          create: {
+            title: q.question,
+            slug: questionSlug,
+            answer: q.answer,
+            difficulty: q.difficulty || "Medium",
+            categoryId: category.id,
+          }
+        });
+      }
+      console.log(`✅ Seeded ${questionsData.length} interview questions.`);
+    }
+  } catch (error) {
+    console.error("⚠️ Failed to seed questions:", error);
+  }
+
+  // ==========================================
+  // 5. Create DSA Questions
+  // ==========================================
+  try {
+    const dsaPath = path.join(__dirname, 'dsa_questions_data.json');
+    if (fs.existsSync(dsaPath)) {
+      const dsaData = JSON.parse(fs.readFileSync(dsaPath, 'utf8'));
+      console.log(`📚 Found ${dsaData.length} DSA questions to seed.`);
+      
+      for (const q of dsaData) {
+        // Create or find category
+        const categoryName = q.category || "General";
+        const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        
+        const category = await prisma.dsaCategory.upsert({
+          where: { slug: categorySlug },
+          update: {},
+          create: {
+            name: categoryName,
+            slug: categorySlug,
+          }
+        });
+        
+        // Upsert DSA question
+        const questionSlug = q.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 100);
+        
+        await prisma.dsaQuestion.upsert({
+          where: { slug: questionSlug },
+          update: {
+            originalId: q.id,
+            title: q.title,
+            description: q.description || "",
+            difficulty: q.difficulty || "Medium",
+            shortAnswer: q.short_answer || "",
+            solutionLink: q.solution_link || null,
+            learningResource: q.learning_resource || null,
+            tags: q.tags || "",
+            pythonCode: q.python_code || null,
+            javaCode: q.java_code || null,
+            jsCode: q.js_code || null,
+            categoryId: category.id,
+          },
+          create: {
+            originalId: q.id,
+            title: q.title,
+            slug: questionSlug,
+            description: q.description || "",
+            difficulty: q.difficulty || "Medium",
+            shortAnswer: q.short_answer || "",
+            solutionLink: q.solution_link || null,
+            learningResource: q.learning_resource || null,
+            tags: q.tags || "",
+            pythonCode: q.python_code || null,
+            javaCode: q.java_code || null,
+            jsCode: q.js_code || null,
+            categoryId: category.id,
+          }
+        });
+      }
+      console.log(`✅ Seeded ${dsaData.length} DSA questions.`);
+    }
+  } catch (error) {
+    console.error("⚠️ Failed to seed DSA questions:", error);
   }
 
   console.log("✅ Seeding completed successfully.");

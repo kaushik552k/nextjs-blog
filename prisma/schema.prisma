@@ -128,3 +128,65 @@ model Tag {
   slug  String @unique // "nextjs"
   posts Post[]
 }
+
+// ==========================================
+// INTERVIEW QUESTIONS
+// ==========================================
+
+model QuestionCategory {
+  id          String     @id @default(uuid())
+  name        String     @unique // e.g. "Agentic AI", "Java"
+  slug        String     @unique
+  questions   Question[]
+  createdAt   DateTime   @default(now())
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  answer      String   @db.Text
+  difficulty  String   // "Easy", "Medium", "Hard"
+  
+  category    QuestionCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// DATA STRUCTURES & ALGORITHMS (DSA)
+// ==========================================
+
+model DsaCategory {
+  id          String         @id @default(uuid())
+  name        String         @unique // e.g. "Binary Search", "Array"
+  slug        String         @unique
+  questions   DsaQuestion[]
+  createdAt   DateTime       @default(now())
+}
+
+model DsaQuestion {
+  id               String       @id @default(uuid())
+  originalId       Int?         @unique // Map to the JSON id (e.g. 400)
+  title            String
+  slug             String       @unique
+  description      String       @db.Text
+  difficulty       String       // "Easy", "Medium", "Hard"
+  shortAnswer      String       @db.Text
+  solutionLink     String?
+  learningResource String?
+  tags             String
+  
+  // Code snippets
+  pythonCode       String?      @db.Text
+  javaCode         String?      @db.Text
+  jsCode           String?      @db.Text
+  
+  category         DsaCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId       String
+  
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
