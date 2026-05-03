@@ -3,7 +3,6 @@
 A full-stack, production-ready blog platform built with a focus on type-safety, performance, and containerized deployment.
 
 ---
-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
 ## 🛠️ Tech Stack
 
 ### Frontend
