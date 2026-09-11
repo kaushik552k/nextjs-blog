@@ -37,13 +37,13 @@ const FeaturedArticles = ({ featuredPosts, latestPosts }: Props) => {
 
         {/* Featured Posts - Large Cards */}
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          {featuredPosts.slice(0, 2).map((post, index) => (
+          {featuredPosts.slice(0, 2).map((post) => (
             <motion.article
               key={post.slug}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             >
               <Link href={`/blog/${post.slug}`} className="group block h-full">
                 <div
@@ -93,13 +93,13 @@ const FeaturedArticles = ({ featuredPosts, latestPosts }: Props) => {
           Latest Articles
         </h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayedPosts.map((post, index) => (
+          {displayedPosts.map((post) => (
             <motion.article
               key={post.slug}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             >
               <Link href={`/blog/${post.slug}`} className="group block h-full">
                 <div className="h-full p-5 rounded-xl bg-card border border-border hover:border-primary/50 transition-all">

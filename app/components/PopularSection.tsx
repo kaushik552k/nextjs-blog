@@ -38,8 +38,8 @@ const PopularSection = ({ popularPosts }: Props) => {
               key={item.slug}
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
             >
               <Link
                 href={`/blog/${item.slug}`}

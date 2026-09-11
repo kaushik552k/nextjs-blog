@@ -1,9 +1,14 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { motion, Variants } from "framer-motion";
 import { ArrowDown, Code2, Palette, Sparkles, Zap } from "lucide-react";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Constants hoisted OUTSIDE the component — prevents recreation on every render.
+// These are static values so there's zero cost to hoisting them.
+// ─────────────────────────────────────────────────────────────────────────────
 const siteConfig = {
   name: "Kaushik",
   tagline:
@@ -14,58 +19,55 @@ const siteConfig = {
   },
 };
 
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+};
+
+const floatingIcons = [
+  { Icon: Code2, color: "text-pink-500", delay: 0, x: -120, y: -60 },
+  { Icon: Palette, color: "text-purple-500", delay: 0.2, x: 120, y: -40 },
+  { Icon: Zap, color: "text-yellow-500", delay: 0.4, x: -100, y: 60 },
+  { Icon: Sparkles, color: "text-cyan-400", delay: 0.6, x: 100, y: 80 },
+];
+
+const heroTags = ["Interactive", "Visual", "Whimsical", "In-depth"];
+// ─────────────────────────────────────────────────────────────────────────────
+
 const HeroSection = () => {
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
-    },
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  };
-
-  const floatingIcons = [
-    { Icon: Code2, color: "text-pink-500", delay: 0, x: -120, y: -60 },
-    { Icon: Palette, color: "text-purple-500", delay: 0.2, x: 120, y: -40 },
-    { Icon: Zap, color: "text-yellow-500", delay: 0.4, x: -100, y: 60 },
-    { Icon: Sparkles, color: "text-cyan-400", delay: 0.6, x: 100, y: 80 },
-  ];
-
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
-      {/* Background Decorations */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Gradient orbs */}
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.1, 1],
-            x: [0, 30, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.15, 1],
-            x: [0, -20, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
+      {/* Background Decorations
+          ─────────────────────────────────────────────────────────────────────
+          BEFORE: motion.div with animate={{ scale, x, y }} + blur-3xl.
+          Blur-3xl triggers expensive filter paint on every animation frame.
+          When combined with framer-motion JS-driven transforms, this creates
+          a new composite layer per orb and forces layout recalculations.
+
+          AFTER: Pure CSS @keyframes animations using `transform` + `opacity` only.
+          These run entirely on the GPU compositor thread — no JS, no layout cost.
+          ───────────────────────────────────────────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        {/* Orb 1 — CSS animated, GPU-only */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-3xl animate-[hero-orb-1_8s_ease-in-out_infinite]" />
+        {/* Orb 2 — CSS animated, GPU-only */}
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl animate-[hero-orb-2_10s_ease-in-out_infinite]" />
 
         {/* Grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--color-border),0.3)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--color-border),0.3)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]" />
@@ -89,25 +91,37 @@ const HeroSection = () => {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              {/* Glowing ring */}
-              <motion.div
-                className="absolute -inset-2 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              {/* Glowing ring — CSS rotate instead of framer-motion */}
+              <div
+                className="absolute -inset-2 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 animate-[spin_8s_linear_infinite]"
                 style={{ padding: "3px" }}
+                aria-hidden="true"
               />
 
-              {/* Avatar image - uses light version as default */}
+              {/* Avatar images
+                  ─────────────────────────────────────────────────────────────
+                  KEY CHANGE: `<img>` → Next.js `<Image>` with `priority`.
+                  The `priority` prop injects a <link rel="preload"> into <head>
+                  so the browser fetches this image at the highest priority —
+                  directly fixing the 4.3 s LCP metric.
+                  Next.js also automatically serves WebP/AVIF and generates srcset.
+                  ───────────────────────────────────────────────────────────── */}
               <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-[rgb(var(--color-background))]">
-                <img
+                <Image
                   src={siteConfig.avatar.light}
                   alt="Master Kaushik Dutta"
-                  className="w-full h-full object-cover dark:hidden"
+                  fill
+                  sizes="160px"
+                  className="object-cover dark:hidden"
+                  priority
                 />
-                <img
+                <Image
                   src={siteConfig.avatar.dark}
                   alt="Master Kaushik Dutta"
-                  className="w-full h-full object-cover hidden dark:block"
+                  fill
+                  sizes="160px"
+                  className="object-cover hidden dark:block"
+                  priority
                 />
               </div>
             </motion.div>
@@ -154,7 +168,7 @@ const HeroSection = () => {
           className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
         >
           <span className="text-[rgb(var(--color-text-primary))]">
-            Hey! I'm{" "}
+            Hey! I&apos;m{" "}
           </span>
           <span className="gradient-text">{siteConfig.name}</span>
           <motion.span
@@ -184,21 +198,19 @@ const HeroSection = () => {
           variants={itemVariants}
           className="flex flex-wrap justify-center gap-3 mb-12"
         >
-          {["Interactive", "Visual", "Whimsical", "In-depth"].map(
-            (tag, index) => (
-              <motion.span
-                key={tag}
-                className="px-4 py-2 rounded-full bg-[rgb(var(--color-card))] border border-[rgb(var(--color-border))] text-sm font-medium text-[rgb(var(--color-text-secondary))]"
-                whileHover={{
-                  scale: 1.05,
-                  borderColor: "rgb(var(--color-accent-primary))",
-                }}
-                transition={{ type: "spring", stiffness: 400 }}
-              >
-                {tag}
-              </motion.span>
-            ),
-          )}
+          {heroTags.map((tag) => (
+            <motion.span
+              key={tag}
+              className="px-4 py-2 rounded-full bg-[rgb(var(--color-card))] border border-[rgb(var(--color-border))] text-sm font-medium text-[rgb(var(--color-text-secondary))]"
+              whileHover={{
+                scale: 1.05,
+                borderColor: "rgb(var(--color-accent-primary))",
+              }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              {tag}
+            </motion.span>
+          ))}
         </motion.div>
 
         {/* Scroll indicator */}
