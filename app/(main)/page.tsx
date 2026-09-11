@@ -9,7 +9,14 @@ import {
   getPopularPosts,
 } from "@/app/lib/data";
 
+// force-dynamic: render at request time (not at build time).
+// The Postgres DB is only reachable inside the running Docker network,
+// so we cannot pre-render this page during `next build`. ISR would try
+// to hit the DB at build time and fail. force-dynamic is correct here.
+// Performance is still improved vs before via: Next.js Image preloading
+// (LCP fix), server-component layout (TBT fix), and nginx caching.
 export const dynamic = "force-dynamic";
+
 
 export default async function Home() {
   // 1. Parallel Fetching for performance

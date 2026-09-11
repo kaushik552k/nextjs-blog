@@ -207,4 +207,34 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-}
+
+  /* ─── Hero Section Orb Animations ─────────────────────────────────────────
+     These replace the framer-motion animated orbs in HeroSection.tsx.
+     Using CSS @keyframes with `transform` and `opacity` only ensures these
+     run entirely on the GPU compositor thread — no JavaScript overhead,
+     no layout recalculation, no paint triggers beyond the initial render.
+     ───────────────────────────────────────────────────────────────────────── */
+  @keyframes hero-orb-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(30px, -20px) scale(1.1); }
+    66%       { transform: translate(-15px, 10px) scale(0.95); }
+  }
+
+  @keyframes hero-orb-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(-20px, 30px) scale(1.15); }
+    66%       { transform: translate(10px, -15px) scale(0.9); }
+  }
+
+  /* Gradient text utility used in HeroSection */
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      var(--color-gradient-start),
+      var(--color-gradient-end)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
